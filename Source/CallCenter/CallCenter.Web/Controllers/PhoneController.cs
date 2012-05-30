@@ -32,7 +32,7 @@ namespace CallCenter.Web.Controllers
 
             Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
 
-            return new FileStreamResult(result, "text/plain");
+            return new FileStreamResult(result, "application/xml");
         }
 
         private static Call GetClient(string CallSid)
