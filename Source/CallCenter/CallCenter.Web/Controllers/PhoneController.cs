@@ -21,13 +21,14 @@ namespace CallCenter.Web.Controllers
             var call = GetClient(CallSid);
 
             TwilioResponse response = new TwilioResponse();
-            response.BeginGather(new {action = Url.Action("ServiceRequest"), timeout = 60, method = "POST", numDigits = 1});
             response.Say("Welcome to the Bank of Griff.");
             response.Pause();
             response.Say("Press 1 to manage your account.");
             response.Say("Press 2 to take out a loan.");
             response.Say("Press 3 to talk to a representative.");
-            response.EndGather();
+            response.Pause();
+            response.Gather(new { action = Url.Action("ServiceRequest"), 
+                timeout = 120, method = "POST", numDigits = 1 });
 
             Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
 
