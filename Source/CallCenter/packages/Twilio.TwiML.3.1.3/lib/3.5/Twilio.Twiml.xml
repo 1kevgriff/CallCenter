@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Twilio.Twiml</name>
+    </assembly>
+    <members>
+        <member name="T:Twilio.TwiML.RequestValidator">
+            <summary>
+            Class used to validate incoming requests from Twilio using 'Request Validation' as described
+            in the Security section of the Twilio TwiML API documentation.
+            </summary>
+        </member>
+        <member name="M:Twilio.TwiML.RequestValidator.IsValidRequest(System.Web.HttpContext,System.String)">
+            <summary>
+            Performs request validation using the current HTTP context passed in manually or from
+            the ASP.NET MVC ValidateRequestAttribute
+            </summary>
+            <param name="context">HttpContext to use for validation</param>
+            <param name="authToken">AuthToken for the account used to sign the request</param>
+        </member>
+        <member name="M:Twilio.TwiML.RequestValidator.IsValidRequest(System.Web.HttpContext,System.String,System.String)">
+            <summary>
+            Performs request validation using the current HTTP context passed in manually or from
+            the ASP.NET MVC ValidateRequestAttribute
+            </summary>
+            <param name="context">HttpContext to use for validation</param>
+            <param name="authToken">AuthToken for the account used to sign the request</param>
+            <param name="urlOverride">The URL to use for validation, if different from Request.Url (sometimes needed if web site is behind a proxy or load-balancer)</param>
+        </member>
+    </members>
+</doc>
