@@ -1,0 +1,11 @@
+A) Welcome to Griff Co Support.  Please select from the following options:
+    - Press 1 for technical support /Twilio/SelectSupport/1
+	- Press 2 for billing support /Twilio/SelectSupport/2
+	- (admin code)?
+	
+A1) You selected technical support.  Which product are you calling for support with?
+	- Press 1 for Griff Co Foobar /Twilio/SelectTechSupport/1
+	- Press 2 for Griff Co BarFoo /Twilio/SelectTechSupport/2
+	- Press 3 for Griff Co BooFar /Twilio/SelectTechSupport/3
+	
+A2) You selected billing support.  
