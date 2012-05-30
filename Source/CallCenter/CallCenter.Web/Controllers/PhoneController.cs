@@ -21,7 +21,7 @@ namespace CallCenter.Web.Controllers
             var call = GetClient(CallSid);
 
             TwilioResponse response = new TwilioResponse();
-            response.BeginGather(new {action = Url.Action("ServiceRequest"), timeout = 10, method = "POST", numDigits = 1});
+            response.BeginGather(new {action = Url.Action("ServiceRequest"), timeout = 60, method = "POST", numDigits = 1});
             response.Say("Welcome to the Bank of Griff.");
             response.Pause();
             response.Say("Press 1 to manage your account.");
