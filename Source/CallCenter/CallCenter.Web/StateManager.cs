@@ -13,8 +13,6 @@ namespace CallCenter.Web
         private static List<Call> ActiveCalls { get; set; }
         private static List<Call> InactiveCalls { get; set; }
 
-        private static DashboardHub _context = (DashboardHub) GlobalHost.ConnectionManager.GetHubContext<DashboardHub>();
-
         public StateManager()
         {
             ActiveCalls = new List<Call>();
@@ -36,8 +34,9 @@ namespace CallCenter.Web
 
         private static void BroadcastUpdatedCalls()
         {
-            _context.Clients.updateActiveCalls(ActiveCalls);
-            _context.Clients.updateInactiveCalls(InactiveCalls);
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+            context.Clients.updateActiveCalls(ActiveCalls);
+            context.Clients.updateInactiveCalls(InactiveCalls);
         }
     }
 }
