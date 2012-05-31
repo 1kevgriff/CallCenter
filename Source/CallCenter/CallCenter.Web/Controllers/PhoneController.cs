@@ -19,6 +19,7 @@ namespace CallCenter.Web.Controllers
         public ActionResult IncomingCall(string CallSid)
         {
             var call = GetClient(CallSid);
+            StateManager.AddNewCall(call);
 
             TwilioResponse response = new TwilioResponse();
             response.Say("Welcome to the Bank of Griff.");
@@ -30,9 +31,26 @@ namespace CallCenter.Web.Controllers
             response.Gather(new { action = Url.Action("ServiceRequest"), 
                 timeout = 120, method = "POST", numDigits = 1 });
 
+            return SendTwilioResult(response);
+        }
+
+        private static ActionResult SendTwilioResult(TwilioResponse response)
+        {
             Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
 
             return new FileStreamResult(result, "application/xml");
+        }
+
+        public ActionResult CallComplete(string CallSid)
+        {
+            var call = GetClient(CallSid);
+            StateManager.CompletedCall(call);
+
+            TwilioResponse response = new TwilioResponse();
+            response.Say("Goodbye baby cakes");
+            response.Hangup();
+
+            return SendTwilioResult(response);
         }
 
         private static Call GetClient(string CallSid)

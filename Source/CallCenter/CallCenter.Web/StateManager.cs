@@ -10,10 +10,10 @@ namespace CallCenter.Web
 {
     public class StateManager
     {
-        private List<Call> ActiveCalls { get; set; }
-        private List<Call> InactiveCalls { get; set; }
+        private static List<Call> ActiveCalls { get; set; }
+        private static List<Call> InactiveCalls { get; set; }
 
-        private DashboardHub _context = (DashboardHub) GlobalHost.ConnectionManager.GetHubContext<DashboardHub>();
+        private static DashboardHub _context = (DashboardHub) GlobalHost.ConnectionManager.GetHubContext<DashboardHub>();
 
         public StateManager()
         {
@@ -21,19 +21,20 @@ namespace CallCenter.Web
             InactiveCalls = new List<Call>();
         }
         
-        public void AddNewCall(Call call)
+        public static void AddNewCall(Call call)
         {
             ActiveCalls.Add(call);
             BroadcastUpdatedCalls();
         }
 
-        public void CompletedCall(Call call)
+        public static void CompletedCall(Call call)
         {
             ActiveCalls.Remove(call);
             InactiveCalls.Add(call);
+            BroadcastUpdatedCalls();
         }
 
-        private void BroadcastUpdatedCalls()
+        private static void BroadcastUpdatedCalls()
         {
             _context.Clients.updateActiveCalls(ActiveCalls);
             _context.Clients.updateInactiveCalls(InactiveCalls);
