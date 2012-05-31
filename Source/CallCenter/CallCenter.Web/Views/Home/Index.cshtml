@@ -1,5 +1,34 @@
 ﻿@{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Bank of Griff";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div class="row page-header">
+    <h1>Bank of Griff</h1>
+</div>
+<div class="row">
+    <div class="span6">
+        <h1>Number of Active Calls</h1>
+        <h2 id="numberActiveCalls">0</h2>
+    </div>
+    <div class="span6">
+        <h1>Number of Active Calls</h1>
+        <h2 id="numberInactiveCalls">0</h2>
+    </div>
+</div>
 
-<h2>Index</h2>
+<script type="text/javascript" src="SignalR/Hubs"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var dashboard = $.connection.dashboardHub;
+
+        dashboard.updateActiveCalls = function (callList) {
+            $("#numberActiveCalls").text(callList.length);
+        };
+
+        dashboard.updateInactiveCalls = function (callList) {
+            $("#numberInactiveCalls").text(callList.length);
+        };
+
+        $.connection.hub.start();
+    });
+</script>

@@ -4,9 +4,13 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/bootstrap.css")"/>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-1.6.4.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.signalR-0.5.0.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/bootstrap.js")"></script>
 </head>
 <body>
-    <div>
+    <div class="container">
         @RenderBody()
     </div>
 </body>
