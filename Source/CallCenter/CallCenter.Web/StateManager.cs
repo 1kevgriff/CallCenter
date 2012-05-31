@@ -30,7 +30,6 @@ namespace CallCenter.Web
             ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
             InactiveCalls.Add(call);
             BroadcastUpdatedCalls();
-            UpdateCallAverageDuration();
         }
 
         private static void UpdateCallAverageDuration()
