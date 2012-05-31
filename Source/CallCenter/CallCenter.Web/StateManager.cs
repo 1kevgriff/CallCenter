@@ -42,7 +42,7 @@ namespace CallCenter.Web
                                               totalDuration += p.Duration.Value;
                                       });
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
-            context.Clients.updateCallAverageDuration(totalDuration);
+            context.Clients.updateAverageCallDuration(totalDuration);
 
         }
 
