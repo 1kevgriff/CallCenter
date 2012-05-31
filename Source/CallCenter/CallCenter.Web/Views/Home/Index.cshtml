@@ -6,13 +6,17 @@
     <h1>Bank of Griff</h1>
 </div>
 <div class="row">
-    <div class="span6">
+    <div class="span3">
         <h1>Number of Active Calls</h1>
         <h2 id="numberActiveCalls">0</h2>
     </div>
-    <div class="span6">
-        <h1>Number of Active Calls</h1>
+    <div class="span3">
+        <h1>Number of Inactive Calls</h1>
         <h2 id="numberInactiveCalls">0</h2>
+    </div>
+    <div class="span3">
+        <h1>Average Call Duration</h1>
+        <h2 id="averageCallDuration">0 seconds</h2>
     </div>
 </div>
 
@@ -27,6 +31,10 @@
 
         dashboard.updateInactiveCalls = function (callList) {
             $("#numberInactiveCalls").text(callList.length);
+        };
+
+        dashboard.updateAverageCallDuration = function (seconds) {
+            $("#averageCallDuration").text(seconds + " seconds");
         };
 
         $.connection.hub.start();

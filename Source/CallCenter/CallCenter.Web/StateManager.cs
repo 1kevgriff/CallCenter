@@ -18,7 +18,7 @@ namespace CallCenter.Web
             ActiveCalls = new List<Call>();
             InactiveCalls = new List<Call>();
         }
-        
+
         public static void AddNewCall(Call call)
         {
             ActiveCalls.Add(call);
@@ -27,9 +27,23 @@ namespace CallCenter.Web
 
         public static void CompletedCall(Call call)
         {
-            ActiveCalls.Remove(call);
+            ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
             InactiveCalls.Add(call);
             BroadcastUpdatedCalls();
+            UpdateCallAverageDuration();
+        }
+
+        private static void UpdateCallAverageDuration()
+        {
+            int totalDuration = 0;
+            InactiveCalls.ForEach(p =>
+                                      {
+                                          if (p.Duration.HasValue)
+                                              totalDuration += p.Duration.Value;
+                                      });
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+            context.Clients.updateCallAverageDuration(totalDuration);
+
         }
 
         private static void BroadcastUpdatedCalls()
