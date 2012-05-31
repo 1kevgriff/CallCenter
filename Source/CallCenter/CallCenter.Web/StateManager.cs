@@ -13,7 +13,7 @@ namespace CallCenter.Web
         private static List<Call> ActiveCalls { get; set; }
         private static List<Call> InactiveCalls { get; set; }
 
-        public StateManager()
+        static StateManager()
         {
             ActiveCalls = new List<Call>();
             InactiveCalls = new List<Call>();
