@@ -48,7 +48,11 @@ namespace CallCenter.Web
 
             var areaCodeCounts = new Dictionary<string, int>();
 
-            foreach (var areaCode in ActiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            List<Call> allCalls = new List<Call>();
+            allCalls.AddRange(ActiveCalls);
+            allCalls.AddRange(InactiveCalls);
+
+            foreach (var areaCode in allCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -56,15 +60,7 @@ namespace CallCenter.Web
                     areaCodeCounts[areaCode] = 1;
             }
 
-            foreach (var areaCode in InactiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
-            {
-                if (areaCodeCounts.ContainsKey(areaCode))
-                    areaCodeCounts[areaCode] += 1;
-                else
-                    areaCodeCounts[areaCode] = 1;
-            }
-
-            List<WijPieChartSeriesItem> areaCodeList = new List<WijPieChartSeriesItem>();
+            List<WijPieChartSeriesItem> areaCodeList;
 
             if (areaCodeCounts.Any())
             {
@@ -77,7 +73,8 @@ namespace CallCenter.Web
             }
             else
             {
-                areaCodeList = new List<WijPieChartSeriesItem>() { new WijPieChartSeriesItem() { data = 1, label = "None", legendEntry = false } };
+                areaCodeList = new List<WijPieChartSeriesItem>()
+                                   {new WijPieChartSeriesItem() {data = 1, label = "None", legendEntry = false}};
             }
 
             context.Clients.updateAreaCodeChart(areaCodeList);
