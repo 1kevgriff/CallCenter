@@ -37,6 +37,7 @@ namespace CallCenter.Web
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
             context.Clients.updateActiveCalls(ActiveCalls);
             context.Clients.updateInactiveCalls(InactiveCalls);
+            UpdateAreaCodes();
         }
 
         private static void UpdateAreaCodes()
