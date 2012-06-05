@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using System.Web;
 using CallCenter.Web.Hubs;
 using SignalR;
@@ -22,11 +23,16 @@ namespace CallCenter.Web
                 return allCalls;
             }
         }
+        private static Timer updateUITimer;
 
         static StateManager()
         {
             ActiveCalls = new List<LocationalCall>();
             InactiveCalls = new List<LocationalCall>();
+            updateUITimer = new Timer();
+            updateUITimer.Elapsed += (sender, args) => BroadcastActiveCalls();
+            updateUITimer.Interval = 60*1000; // 60 seconds
+            updateUITimer.Start();
         }
 
         public static void AddNewCall(LocationalCall call)
@@ -58,7 +64,7 @@ namespace CallCenter.Web
 
             var areaCodeCounts = new Dictionary<string, int>();
 
-            foreach (var areaCode in AllCalls.OrderBy(p => p.DateCreated).Select(call => ExtractAreaCode(call.From)))
+            foreach (var areaCode in AllCalls.OrderByDescending(p => p.DateCreated).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -101,7 +107,7 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            var calls = AllCalls.OrderBy(p=>p.DateCreated).Select(activeCall => new Dictionary<string, string>
+            var calls = AllCalls.OrderByDescending(p=>p.DateCreated).Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
                                                                  {"Status", GetCallStatus(activeCall)},
@@ -117,7 +123,7 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallLocations()
         {
-            var calls = AllCalls.OrderBy(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
+            var calls = AllCalls.OrderByDescending(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
                                                                  {"City", activeCall.City},
