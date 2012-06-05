@@ -75,7 +75,9 @@
                 text: "Area Codes"
             },
             seriesList: [{ data: 1, label: "None", legendEntry: false}],
-            easing: 'bounce'
+            seriesTransition: {
+                easing: 'bounce'   
+            }
         });
         $("table").wijgrid();
     }
