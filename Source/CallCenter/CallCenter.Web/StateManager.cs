@@ -36,8 +36,9 @@ namespace CallCenter.Web
         }
         public static void CompletedCall(LocationalCall call)
         {
-            ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
-            InactiveCalls.Add(call);
+            var locationalCall = ActiveCalls.Find(p => p.Sid == call.Sid);
+            ActiveCalls.Remove(locationalCall);
+            InactiveCalls.Add(locationalCall);
             BroadcastActiveCalls();
         }
 
