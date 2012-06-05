@@ -32,24 +32,56 @@ namespace CallCenter.Web
             BroadcastUpdatedCalls();
         }
 
-        private static void UpdateCallAverageDuration()
-        {
-            int totalDuration = 0;
-            InactiveCalls.ForEach(p =>
-                                      {
-                                          if (p.Duration.HasValue)
-                                              totalDuration += p.Duration.Value;
-                                      });
-            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
-            context.Clients.updateAverageCallDuration(totalDuration);
-
-        }
-
         private static void BroadcastUpdatedCalls()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
             context.Clients.updateActiveCalls(ActiveCalls);
             context.Clients.updateInactiveCalls(InactiveCalls);
         }
+
+        private static void UpdateAreaCodes()
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+
+            Dictionary<string, int> areaCodeCounts = new Dictionary<string, int>();
+
+            foreach (string areaCode in ActiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            {
+                if (areaCodeCounts.ContainsKey(areaCode))
+                    areaCodeCounts[areaCode] += 1;
+                else
+                    areaCodeCounts[areaCode] = 1;
+            }
+
+            foreach (string areaCode in InactiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            {
+                if (areaCodeCounts.ContainsKey(areaCode))
+                    areaCodeCounts[areaCode] += 1;
+                else
+                    areaCodeCounts[areaCode] = 1;
+            }
+
+            List<WijPieChartSeriesItem> areaCodeList = 
+                areaCodeCounts.Select(keyValuePair => new WijPieChartSeriesItem()
+                                                                                                 {
+                                                                                                     data = keyValuePair.Value, 
+                                                                                                     label = keyValuePair.Key, 
+                                                                                                     legendEntry = true
+                                                                                                 }).ToList();
+
+            context.Clients.updateAreaCodeChart(areaCodeList);
+        }
+
+        private static string ExtractAreaCode(string phoneNumber)
+        {
+            return phoneNumber.Substring(1, 3);
+        }
+    }
+
+    public class WijPieChartSeriesItem
+    {
+        public string label { get; set; }
+        public bool legendEntry { get; set; }
+        public int data { get; set; }
     }
 }

@@ -3,22 +3,37 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="row page-header">
-    <h1>Bank of Griff - (202) 688-2265 </h1>
+    <h1>
+        Bank of Griff - (202) 688-2265
+    </h1>
 </div>
 <div class="row">
     <div class="span6">
-        <h1>Number of Active Calls</h1>
-        <h2 id="numberActiveCalls">0</h2>
+        <h2>
+            Number of Active Calls</h2>
+        <h3 id="numberActiveCalls">
+            0</h3>
     </div>
     <div class="span6">
-        <h1>Number of Inactive Calls</h1>
-        <h2 id="numberInactiveCalls">0</h2>
+        <h2>
+            Number of Inactive Calls</h2>
+        <h3 id="numberInactiveCalls">
+            0</h3>
     </div>
 </div>
-
+<div class="row">
+    <div class="span4">
+        <h2>
+            Popular Area Codes</h2>
+        <div id="areaCodeBarChart">
+        </div>
+    </div>
+</div>
 <script type="text/javascript" src="SignalR/Hubs"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        configureWijmo();
+
         var dashboard = $.connection.dashboardHub;
 
         dashboard.updateActiveCalls = function (callList) {
@@ -29,10 +44,23 @@
             $("#numberInactiveCalls").text(callList.length);
         };
 
-        dashboard.updateAverageCallDuration = function (seconds) {
-            $("#averageCallDuration").text(seconds + " seconds");
+        dashboard.updateAreaCodeChart = function (areaCodeList) {
+            $("#areaCodeBarChart").wijpiechart("option", "seriesList", seriesList);
         };
 
         $.connection.hub.start();
     });
+
+    function configureWijmo() {
+        $("#areaCodeBarChart").wijpiechart({
+            radius: 100,
+            width: 300,
+            height: 300,
+            showChartLabels: false,
+            header: {
+                text: "Area Codes"
+            },
+            seriesList: [{ data: 1, label: "None", legendEntry: false}]
+        });
+    }
 </script>
