@@ -24,7 +24,6 @@ namespace CallCenter.Web
             ActiveCalls.Add(call);
             BroadcastUpdatedCalls();
         }
-
         public static void CompletedCall(Call call)
         {
             ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
@@ -39,7 +38,6 @@ namespace CallCenter.Web
             context.Clients.updateInactiveCalls(InactiveCalls);
             UpdateAreaCodes();
         }
-
         public static void BroadcastToClient(dynamic caller)
         {
             caller.updateActiveCalls(ActiveCalls);
@@ -88,7 +86,6 @@ namespace CallCenter.Web
 
             context.Clients.updateAreaCodeChart(areaCodeList);
         }
-
         private static string ExtractAreaCode(string phoneNumber)
         {
             return phoneNumber.Substring(2, 3);
