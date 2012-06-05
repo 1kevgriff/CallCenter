@@ -9,7 +9,7 @@ namespace CallCenter.Web.Hubs
     {
         public void Preload()
         {
-            StateManager.PreloadClient(Caller);
+            StateManager.PreloadClient(Context.ConnectionId);
         }
     }
 }

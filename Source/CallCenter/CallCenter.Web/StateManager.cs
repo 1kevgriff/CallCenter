@@ -79,10 +79,12 @@ namespace CallCenter.Web
 
             context.Clients.updateAreaCodeChart(areaCodeList);
         }
-        public static void PreloadClient(dynamic caller)
+        public static void PreloadClient(string connectionId)
         {
-            caller.updateActiveCalls(ActiveCalls);
-            caller.updateInactiveCalls(InactiveCalls);
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+            context.Clients[connectionId].updateActiveCallCount(ActiveCalls);
+            context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
+            context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
             BroadcastAreaCodes();
         }
 
