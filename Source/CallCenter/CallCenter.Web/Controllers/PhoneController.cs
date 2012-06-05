@@ -19,7 +19,7 @@ namespace CallCenter.Web.Controllers
 
 		public ActionResult IncomingCall(string CallSid, string FromCity, string FromState, string FromZip, string FromCountry)
 		{
-			LocationalCall call = (LocationalCall) GetClient(CallSid);
+			LocationalCall call = (LocationalCall) GetCall(CallSid);
 		    call.City = FromCity;
 		    call.Country = FromCountry;
 		    call.ZipCode = FromZip;
@@ -48,7 +48,7 @@ namespace CallCenter.Web.Controllers
 
 		public ActionResult CallComplete(string CallSid)
 		{
-			LocationalCall call = (LocationalCall) GetClient(CallSid);
+			LocationalCall call = (LocationalCall) GetCall(CallSid);
 			StateManager.CompletedCall(call);
 
 			TwilioResponse response = new TwilioResponse();
@@ -58,19 +58,19 @@ namespace CallCenter.Web.Controllers
 			return SendTwilioResult(response);
 		}
 
-		private static Call GetClient(string CallSid)
+		private static LocationalCall GetCall(string CallSid)
 		{
             string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
             string authToken = "921a664399748302a019ee35c40e888c";
 
 			TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
-			var call = client.GetCall(CallSid);
-			return call;
+		    var call = client.GetCall(CallSid);
+		    return new LocationalCall(call);
 		}
 
 		public ActionResult ServiceRequest(string CallSid, string Digits)
 		{
-			var call = GetClient(CallSid);
+			var call = GetCall(CallSid);
 			TwilioResponse response = new TwilioResponse();
 			response.Say(string.Format("You pressed {0}", Digits));
 			response.Pause();
