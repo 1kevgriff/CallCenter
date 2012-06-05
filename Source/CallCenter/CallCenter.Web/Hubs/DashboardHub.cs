@@ -7,9 +7,9 @@ namespace CallCenter.Web.Hubs
 {
     public class DashboardHub : SignalR.Hubs.Hub
     {
-        public void PreloadData()
+        public void Preload()
         {
-            
+            StateManager.BroadcastToClient(Caller);
         }
     }
 }

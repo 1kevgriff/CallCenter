@@ -40,13 +40,20 @@ namespace CallCenter.Web
             UpdateAreaCodes();
         }
 
+        public static void BroadcastToClient(dynamic caller)
+        {
+            caller.updateActiveCalls(ActiveCalls);
+            caller.updateInactiveCalls(InactiveCalls);
+            UpdateAreaCodes();
+        }
+
         private static void UpdateAreaCodes()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
 
-            Dictionary<string, int> areaCodeCounts = new Dictionary<string, int>();
+            var areaCodeCounts = new Dictionary<string, int>();
 
-            foreach (string areaCode in ActiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            foreach (var areaCode in ActiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -54,7 +61,7 @@ namespace CallCenter.Web
                     areaCodeCounts[areaCode] = 1;
             }
 
-            foreach (string areaCode in InactiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            foreach (var areaCode in InactiveCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -62,20 +69,29 @@ namespace CallCenter.Web
                     areaCodeCounts[areaCode] = 1;
             }
 
-            List<WijPieChartSeriesItem> areaCodeList = 
-                areaCodeCounts.Select(keyValuePair => new WijPieChartSeriesItem()
-                                                                                                 {
-                                                                                                     data = keyValuePair.Value, 
-                                                                                                     label = keyValuePair.Key, 
-                                                                                                     legendEntry = true
-                                                                                                 }).ToList();
+            List<WijPieChartSeriesItem> areaCodeList = new List<WijPieChartSeriesItem>();
+
+            if (areaCodeCounts.Any())
+            {
+                areaCodeList = areaCodeCounts.Select(keyValuePair => new WijPieChartSeriesItem()
+                                                                         {
+                                                                             data = keyValuePair.Value,
+                                                                             label = keyValuePair.Key,
+                                                                             legendEntry = true
+                                                                         }).ToList();
+            }
+            else
+            {
+                areaCodeList = new List<WijPieChartSeriesItem>()
+                                   {new WijPieChartSeriesItem() {data = 1, label = "None", legendEntry = false}};
+            }
 
             context.Clients.updateAreaCodeChart(areaCodeList);
         }
 
         private static string ExtractAreaCode(string phoneNumber)
         {
-            return phoneNumber.Substring(1, 3);
+            return phoneNumber.Substring(2, 3);
         }
     }
 
