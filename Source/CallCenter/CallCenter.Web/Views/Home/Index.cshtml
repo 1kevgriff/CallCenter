@@ -23,7 +23,18 @@
         </div>
     </div>
     <div class="span4">
-        <h2>Active Phone Calls</h2>
+        <h2>Phone Calls</h2>
+        <table id="activeCallList" width="100%">
+            <thead>
+                <tr>
+                    <td>Number</td>
+                    <td>Status</td>
+                    <td>Duration</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 </div>
 <script type="text/javascript" src="SignalR/Hubs"></script>
@@ -33,16 +44,20 @@
 
         var dashboard = $.connection.dashboardHub;
 
-        dashboard.updateActiveCalls = function (callList) {
+        dashboard.updateActiveCallCount = function (callList) {
             $("#numberActiveCalls").text(callList.length);
         };
 
-        dashboard.updateInactiveCalls = function (callList) {
+        dashboard.updateInactiveCallCount = function (callList) {
             $("#numberInactiveCalls").text(callList.length);
         };
 
         dashboard.updateAreaCodeChart = function (areaCodeList) {
             $("#areaCodeBarChart").wijpiechart("option", "seriesList", areaCodeList);
+        };
+
+        dashboard.updateCallGrid = function (data) {
+            $("#activeCallList").wijgrid("option", "data", data);
         };
 
         $.connection.hub.start().done(function () {
@@ -61,5 +76,6 @@
             },
             seriesList: [{ data: 1, label: "None", legendEntry: false}]
         });
+        $("table").wijgrid();
     }
 </script>

@@ -22,30 +22,25 @@ namespace CallCenter.Web
         public static void AddNewCall(Call call)
         {
             ActiveCalls.Add(call);
-            BroadcastUpdatedCalls();
+            BroadcastActiveCalls();
         }
         public static void CompletedCall(Call call)
         {
             ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
             InactiveCalls.Add(call);
-            BroadcastUpdatedCalls();
+            BroadcastActiveCalls();
         }
 
-        private static void BroadcastUpdatedCalls()
+        private static void BroadcastActiveCalls()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
-            context.Clients.updateActiveCalls(ActiveCalls);
-            context.Clients.updateInactiveCalls(InactiveCalls);
-            UpdateAreaCodes();
-        }
-        public static void BroadcastToClient(dynamic caller)
-        {
-            caller.updateActiveCalls(ActiveCalls);
-            caller.updateInactiveCalls(InactiveCalls);
-            UpdateAreaCodes();
+            context.Clients.updateActiveCallCount(ActiveCalls);
+            context.Clients.updateInactiveCallCount(InactiveCalls);
+            context.Clients.updateCallGrid(GetWijmoCallGrid());
+            BroadcastAreaCodes();
         }
 
-        private static void UpdateAreaCodes()
+        private static void BroadcastAreaCodes()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
 
@@ -72,23 +67,62 @@ namespace CallCenter.Web
             if (areaCodeCounts.Any())
             {
                 areaCodeList = areaCodeCounts.Select(keyValuePair => new WijPieChartSeriesItem()
-                                                                         {
-                                                                             data = keyValuePair.Value,
-                                                                             label = keyValuePair.Key,
-                                                                             legendEntry = true
-                                                                         }).ToList();
+                {
+                    data = keyValuePair.Value,
+                    label = keyValuePair.Key,
+                    legendEntry = true
+                }).ToList();
             }
             else
             {
-                areaCodeList = new List<WijPieChartSeriesItem>()
-                                   {new WijPieChartSeriesItem() {data = 1, label = "None", legendEntry = false}};
+                areaCodeList = new List<WijPieChartSeriesItem>() { new WijPieChartSeriesItem() { data = 1, label = "None", legendEntry = false } };
             }
 
             context.Clients.updateAreaCodeChart(areaCodeList);
         }
+        public static void PreloadClient(dynamic caller)
+        {
+            caller.updateActiveCalls(ActiveCalls);
+            caller.updateInactiveCalls(InactiveCalls);
+            BroadcastAreaCodes();
+        }
+
+        /* Helpers */
         private static string ExtractAreaCode(string phoneNumber)
         {
             return phoneNumber.Substring(2, 3);
+        }
+        private static List<Dictionary<string, string>> GetWijmoCallGrid()
+        {
+            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+
+            foreach (var activeCall in ActiveCalls)
+            {
+                Dictionary<string, string> c = new Dictionary<string, string>
+                                                   {
+                                                       {"Number", CensorPhoneNumber(activeCall.From)},
+                                                       {"Status", "Active"},
+                                                       {"Duration", string.Format("{0} seconds", GetCallDuration(activeCall))}
+                                                   };
+                list.Add(c);
+            }
+
+            return list;
+        }
+
+        private static int GetCallDuration(Call activeCall)
+        {
+            string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
+            string authToken = "921a664399748302a019ee35c40e888c";
+
+            TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
+            var call = client.GetCall(activeCall.Sid);
+            return call.Duration.HasValue ? call.Duration.Value : 0;
+        }
+
+        private static string CensorPhoneNumber(string number)
+        {
+            return number.Substring(0, 8) + "****";
         }
     }
 
