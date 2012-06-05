@@ -13,6 +13,8 @@ namespace CallCenter.Web
         private static List<Call> ActiveCalls { get; set; }
         private static List<Call> InactiveCalls { get; set; }
 
+
+
         static StateManager()
         {
             ActiveCalls = new List<Call>();
@@ -94,22 +96,29 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            List<Dictionary<string, string>> list = new List<Dictionary<string, string>>();
+            var calls = ActiveCalls.Select(activeCall => new Dictionary<string, string>
+                                                             {
+                                                                 {"Number", CensorPhoneNumber(activeCall.From)},
+                                                                 {"Status", "Active"},
+                                                                 {
+                                                                     "Duration",
+                                                                     string.Format("{0} seconds",
+                                                                                   GetCallDuration(activeCall))
+                                                                     }
+                                                             }).ToList();
+            calls.AddRange(InactiveCalls.Select(activeCall => new Dictionary<string, string>
+                                                                  {
+                                                                      {"Number", CensorPhoneNumber(activeCall.From)},
+                                                                      {"Status", "Completed"},
+                                                                      {
+                                                                          "Duration",
+                                                                          string.Format("{0} seconds",
+                                                                                        GetCallDuration(activeCall))
+                                                                          }
+                                                                  }).ToList());
 
-            foreach (var activeCall in ActiveCalls)
-            {
-                Dictionary<string, string> c = new Dictionary<string, string>
-                                                   {
-                                                       {"Number", CensorPhoneNumber(activeCall.From)},
-                                                       {"Status", "Active"},
-                                                       {"Duration", string.Format("{0} seconds", GetCallDuration(activeCall))}
-                                                   };
-                list.Add(c);
-            }
-
-            return list;
+            return calls;
         }
-
         private static int GetCallDuration(Call activeCall)
         {
             string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
@@ -119,7 +128,6 @@ namespace CallCenter.Web
             var call = client.GetCall(activeCall.Sid);
             return call.Duration.HasValue ? call.Duration.Value : 0;
         }
-
         private static string CensorPhoneNumber(string number)
         {
             return number.Substring(0, 8) + "****";
