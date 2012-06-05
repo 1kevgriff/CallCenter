@@ -1,8 +1,3 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-  For more information on how to configure your ASP.NET application, please visit
-  http://go.microsoft.com/fwlink/?LinkId=169433
-  -->
 <configuration>
   <configSections>
     <sectionGroup name="elmah">
@@ -12,36 +7,16 @@
       <section name="errorFilter" requirePermission="false" type="Elmah.ErrorFilterSectionHandler, Elmah" />
     </sectionGroup>
   </configSections>
-  <appSettings>
-    <add key="aspnet:UseTaskFriendlySynchronizationContext" value="true" />
-    <add key="webpages:Version" value="2.0.0.0" />
-    <add key="webpages:Enabled" value="false" />
-    <add key="PreserveLoginUrl" value="true" />
-    <add key="ClientValidationEnabled" value="true" />
-    <add key="UnobtrusiveJavaScriptEnabled" value="true" />
-  </appSettings>
   <system.web>
-    <compilation debug="true" targetFramework="4.0" />
-    <customErrors mode="Off"></customErrors>
-    <pages>
-      <namespaces>
-        <add namespace="System.Web.Helpers" />
-        <add namespace="System.Web.Mvc" />
-        <add namespace="System.Web.Mvc.Ajax" />
-        <add namespace="System.Web.Mvc.Html" />
-        <add namespace="System.Web.Routing" />
-        <add namespace="System.Web.WebPages" />
-      </namespaces>
-    </pages>
     <httpModules>
       <add name="ErrorLog" type="Elmah.ErrorLogModule, Elmah" />
       <add name="ErrorMail" type="Elmah.ErrorMailModule, Elmah" />
-      <add name="ErrorFilter" type="Elmah.ErrorFilterModule, Elmah" />
+      <add name="ErrorFilter" type="Elmah.ErrorFilterModule, Elmah"/>
     </httpModules>
   </system.web>
   <system.webServer>
     <validation validateIntegratedModeConfiguration="false" />
-    <modules runAllManagedModulesForAllRequests="true">
+    <modules>
       <add name="ErrorLog" type="Elmah.ErrorLogModule, Elmah" preCondition="managedHandler" />
       <add name="ErrorMail" type="Elmah.ErrorMailModule, Elmah" preCondition="managedHandler" />
       <add name="ErrorFilter" type="Elmah.ErrorFilterModule, Elmah" preCondition="managedHandler" />
@@ -57,7 +32,9 @@
   <location path="elmah.axd" inheritInChildApplications="false">
     <system.web>
       <httpHandlers>
-        <add verb="POST,GET,HEAD" path="elmah.axd" type="Elmah.ErrorLogPageFactory, Elmah" />
+        <add verb="POST,GET,HEAD" 
+             path="elmah.axd" 
+             type="Elmah.ErrorLogPageFactory, Elmah" />
       </httpHandlers>
       <!-- 
         See http://code.google.com/p/elmah/wiki/SecuringErrorLogPages for 
@@ -67,11 +44,15 @@
         <allow roles="admin" />
         <deny users="*" />  
       </authorization>
-      -->
+      -->  
     </system.web>
     <system.webServer>
       <handlers>
-        <add name="ELMAH" verb="POST,GET,HEAD" path="elmah.axd" type="Elmah.ErrorLogPageFactory, Elmah" preCondition="integratedMode" />
+        <add name="ELMAH"
+             verb="POST,GET,HEAD"
+             path="elmah.axd" 
+             type="Elmah.ErrorLogPageFactory, Elmah"
+             preCondition="integratedMode" />
       </handlers>
     </system.webServer>
   </location>
