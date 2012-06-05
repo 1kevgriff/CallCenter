@@ -13,6 +13,16 @@ namespace CallCenter.Web
         private static List<Call> ActiveCalls { get; set; }
         private static List<Call> InactiveCalls { get; set; }
 
+        private static List<Call> AllCalls
+        {
+            get
+            {
+                List<Call> allCalls = new List<Call>();
+                allCalls.AddRange(ActiveCalls);
+                allCalls.AddRange(InactiveCalls);
+                return allCalls;
+            }
+        }
 
 
         static StateManager()
@@ -48,11 +58,7 @@ namespace CallCenter.Web
 
             var areaCodeCounts = new Dictionary<string, int>();
 
-            List<Call> allCalls = new List<Call>();
-            allCalls.AddRange(ActiveCalls);
-            allCalls.AddRange(InactiveCalls);
-
-            foreach (var areaCode in allCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            foreach (var areaCode in AllCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -73,8 +79,7 @@ namespace CallCenter.Web
             }
             else
             {
-                areaCodeList = new List<WijPieChartSeriesItem>()
-                                   {new WijPieChartSeriesItem() {data = 1, label = "None", legendEntry = false}};
+                areaCodeList = new List<WijPieChartSeriesItem>() { new WijPieChartSeriesItem() { data = 1, label = "None", legendEntry = false } };
             }
 
             context.Clients.updateAreaCodeChart(areaCodeList);
@@ -95,28 +100,29 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            var calls = ActiveCalls.Select(activeCall => new Dictionary<string, string>
+            var calls = AllCalls.Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
-                                                                 {"Status", "Active"},
+                                                                 {"Status", GetCallStatus(activeCall)},
                                                                  {
                                                                      "Duration",
                                                                      string.Format("{0} seconds",
                                                                                    GetCallDuration(activeCall))
-                                                                     }
+                                                                     },
+                                                                     {"Date", activeCall.DateCreated.ToString()}
                                                              }).ToList();
-            calls.AddRange(InactiveCalls.Select(activeCall => new Dictionary<string, string>
-                                                                  {
-                                                                      {"Number", CensorPhoneNumber(activeCall.From)},
-                                                                      {"Status", "Completed"},
-                                                                      {
-                                                                          "Duration",
-                                                                          string.Format("{0} seconds",
-                                                                                        GetCallDuration(activeCall))
-                                                                          }
-                                                                  }).ToList());
 
             return calls;
+        }
+
+        private static string GetCallStatus(Call activeCall)
+        {
+            string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
+            string authToken = "921a664399748302a019ee35c40e888c";
+
+            TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
+            var call = client.GetCall(activeCall.Sid);
+            return call.Status;
         }
         private static int GetCallDuration(Call activeCall)
         {

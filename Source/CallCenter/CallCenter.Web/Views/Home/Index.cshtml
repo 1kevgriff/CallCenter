@@ -23,8 +23,13 @@
         </div>
     </div>
     <div class="span4">
+        
+    </div>
+</div>
+<div class="row">
+    <div class="span6">
         <h2>Phone Calls</h2>
-        <table id="activeCallList" width="100%">
+        <table id="tableCallList" width="100%">
             <thead>
                 <tr>
                     <td>Number</td>
@@ -57,7 +62,7 @@
         };
 
         dashboard.updateCallGrid = function (data) {
-            $("#activeCallList").wijgrid("option", "data", data);
+            $("#tableCallList").wijgrid("option", "data", data);
         };
 
         $.connection.hub.start().done(function () {
@@ -81,6 +86,6 @@
                 enabled: false
             }
         });
-        $("table").wijgrid();
+        $("#tableCallList").wijgrid();
     }
 </script>
