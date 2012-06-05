@@ -17,9 +17,13 @@ namespace CallCenter.Web.Controllers
 		//
 		// GET: /Phone/
 
-		public ActionResult IncomingCall(string CallSid)
+		public ActionResult IncomingCall(string CallSid, string FromCity, string FromState, string FromZip, string FromCountry)
 		{
-			var call = GetClient(CallSid);
+			LocationalCall call = (LocationalCall) GetClient(CallSid);
+		    call.City = FromCity;
+		    call.Country = FromCountry;
+		    call.ZipCode = FromZip;
+		    call.State = FromState;
 			StateManager.AddNewCall(call);
 
 			TwilioResponse response = new TwilioResponse();
@@ -44,7 +48,7 @@ namespace CallCenter.Web.Controllers
 
 		public ActionResult CallComplete(string CallSid)
 		{
-			var call = GetClient(CallSid);
+			LocationalCall call = (LocationalCall) GetClient(CallSid);
 			StateManager.CompletedCall(call);
 
 			TwilioResponse response = new TwilioResponse();

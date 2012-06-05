@@ -10,33 +10,31 @@ namespace CallCenter.Web
 {
     public class StateManager
     {
-        private static List<Call> ActiveCalls { get; set; }
-        private static List<Call> InactiveCalls { get; set; }
-
-        private static List<Call> AllCalls
+        private static List<LocationalCall> ActiveCalls { get; set; }
+        private static List<LocationalCall> InactiveCalls { get; set; }
+        private static List<LocationalCall> AllCalls
         {
             get
             {
-                List<Call> allCalls = new List<Call>();
+                List<LocationalCall> allCalls = new List<LocationalCall>();
                 allCalls.AddRange(ActiveCalls);
                 allCalls.AddRange(InactiveCalls);
                 return allCalls;
             }
         }
 
-
         static StateManager()
         {
-            ActiveCalls = new List<Call>();
-            InactiveCalls = new List<Call>();
+            ActiveCalls = new List<LocationalCall>();
+            InactiveCalls = new List<LocationalCall>();
         }
 
-        public static void AddNewCall(Call call)
+        public static void AddNewCall(LocationalCall call)
         {
             ActiveCalls.Add(call);
             BroadcastActiveCalls();
         }
-        public static void CompletedCall(Call call)
+        public static void CompletedCall(LocationalCall call)
         {
             ActiveCalls.Remove(ActiveCalls.Find(p => p.Sid == call.Sid));
             InactiveCalls.Add(call);
@@ -49,6 +47,7 @@ namespace CallCenter.Web
             context.Clients.updateActiveCallCount(ActiveCalls);
             context.Clients.updateInactiveCallCount(InactiveCalls);
             context.Clients.updateCallGrid(GetWijmoCallGrid());
+            context.Clients.updateCallLocationsGrid(GetWijmoCallLocations());
             BroadcastAreaCodes();
         }
 
@@ -58,7 +57,7 @@ namespace CallCenter.Web
 
             var areaCodeCounts = new Dictionary<string, int>();
 
-            foreach (var areaCode in AllCalls.OrderBy(p => p.From).Select(call => ExtractAreaCode(call.From)))
+            foreach (var areaCode in AllCalls.OrderBy(p => p.DateCreated).Select(call => ExtractAreaCode(call.From)))
             {
                 if (areaCodeCounts.ContainsKey(areaCode))
                     areaCodeCounts[areaCode] += 1;
@@ -90,6 +89,7 @@ namespace CallCenter.Web
             context.Clients[connectionId].updateActiveCallCount(ActiveCalls);
             context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
             context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
+            context.Clients[connectionId].updateCallLocationsGrid(GetWijmoCallLocations());
             BroadcastAreaCodes();
         }
 
@@ -100,7 +100,7 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            var calls = AllCalls.Select(activeCall => new Dictionary<string, string>
+            var calls = AllCalls.OrderBy(p=>p.DateCreated).Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
                                                                  {"Status", GetCallStatus(activeCall)},
@@ -114,6 +114,19 @@ namespace CallCenter.Web
 
             return calls;
         }
+        private static List<Dictionary<string, string>> GetWijmoCallLocations()
+        {
+            var calls = AllCalls.OrderBy(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
+                                                             {
+                                                                 {"Number", CensorPhoneNumber(activeCall.From)},
+                                                                 {"City", activeCall.City},
+                                                                 {"State", activeCall.State},
+                                                                 {"Zip Code", activeCall.ZipCode},
+                                                                 {"Country", activeCall.Country}
+                                                             }).ToList();
+
+            return calls;
+        } 
 
         private static string GetCallStatus(Call activeCall)
         {

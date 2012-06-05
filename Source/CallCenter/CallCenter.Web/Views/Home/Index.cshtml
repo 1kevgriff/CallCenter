@@ -41,6 +41,21 @@
             </tbody>
         </table>
     </div>
+    <div class="span6">
+        <h2>Phone Locations</h2>
+        <table id="tableCallLocations" width="100%">
+            <thead>
+                <tr>
+                    <td>City</td>
+                    <td>State</td>
+                    <td>ZipCode</td>
+                    <td>Country</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 <script type="text/javascript" src="SignalR/Hubs"></script>
 <script type="text/javascript">
@@ -65,6 +80,10 @@
             $("#tableCallList").wijgrid("option", "data", data);
         };
 
+        dashboard.updateCallLocationsGrid = function (data) {
+            $("#tableCallLocations").wijgrid("option", "data", data);
+        };
+
         $.connection.hub.start().done(function () {
             dashboard.preload();
         });
@@ -87,5 +106,6 @@
             }
         });
         $("#tableCallList").wijgrid();
+        $("#tableCallLocations").wijgrid();
     }
 </script>
