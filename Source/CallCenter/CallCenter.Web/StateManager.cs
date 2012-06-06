@@ -54,7 +54,7 @@ namespace CallCenter.Web
             context.Clients.updateActiveCallCount(ActiveCalls);
             context.Clients.updateInactiveCallCount(InactiveCalls);
             context.Clients.updateCallGrid(GetWijmoCallGrid());
-            context.Clients.updateCallLocationsGrid(GetWijmoCallLocations());
+            context.Clients.updateLastUpdated(DateTime.Now.ToString());
             BroadcastAreaCodes();
         }
 
@@ -96,7 +96,7 @@ namespace CallCenter.Web
             context.Clients[connectionId].updateActiveCallCount(ActiveCalls);
             context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
             context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
-            context.Clients[connectionId].updateCallLocationsGrid(GetWijmoCallLocations());
+            context.Clients[connectionId].updateLastUpdated(DateTime.Now.ToString());
             BroadcastAreaCodes();
         }
 
@@ -107,7 +107,7 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            var calls = AllCalls.OrderByDescending(p=>p.DateCreated).Select(activeCall => new Dictionary<string, string>
+            var calls = AllCalls.OrderByDescending(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
                                                                  {"Status", GetCallStatus(activeCall)},
@@ -116,24 +116,15 @@ namespace CallCenter.Web
                                                                      string.Format("{0} seconds",
                                                                                    GetCallDuration(activeCall))
                                                                      },
-                                                                     {"Date", activeCall.DateCreated.ToString()}
-                                                             }).ToList();
-
-            return calls;
-        }
-        private static List<Dictionary<string, string>> GetWijmoCallLocations()
-        {
-            var calls = AllCalls.OrderByDescending(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
-                                                             {
-                                                                 {"Number", CensorPhoneNumber(activeCall.From)},
-                                                                 {"City", activeCall.City},
+                                                                     {"Date", activeCall.DateCreated.ToString()},
+                                                                     {"City", activeCall.City},
                                                                  {"State", activeCall.State},
                                                                  {"Zip Code", activeCall.ZipCode},
                                                                  {"Country", activeCall.Country}
                                                              }).ToList();
 
             return calls;
-        } 
+        }
 
         private static string GetCallStatus(Call activeCall)
         {

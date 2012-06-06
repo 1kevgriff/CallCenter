@@ -10,11 +10,11 @@
 <div class="row">
     <div class="span4">
         <h2>
-            Number of Active Calls</h2>
+            ACTIVE</h2>
         <h3 id="numberActiveCalls">
             0</h3>
         <h2>
-            Number of Inactive Calls</h2>
+            TOTALS</h2>
         <h3 id="numberInactiveCalls">
             0</h3>
     </div>
@@ -27,7 +27,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="span6">
+    <div class="span12">
         <h2>Phone Calls</h2>
         <table id="tableCallList" width="100%">
             <thead>
@@ -41,20 +41,10 @@
             </tbody>
         </table>
     </div>
-    <div class="span6">
-        <h2>Phone Locations</h2>
-        <table id="tableCallLocations" width="100%">
-            <thead>
-                <tr>
-                    <td>City</td>
-                    <td>State</td>
-                    <td>ZipCode</td>
-                    <td>Country</td>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+</div>
+<div class="row">
+    <div class="span12">
+        <small>Last updated at <span id="lastUpdated">Unknown</span></small>
     </div>
 </div>
 <script type="text/javascript" src="SignalR/Hubs"></script>
@@ -80,8 +70,8 @@
             $("#tableCallList").wijgrid("option", "data", data);
         };
 
-        dashboard.updateCallLocationsGrid = function (data) {
-            $("#tableCallLocations").wijgrid("option", "data", data);
+        dashboard.updateLastUpdated = function (date) {
+            $("#lastUpdated").text(date);
         };
 
         $.connection.hub.start().done(function () {
@@ -106,6 +96,5 @@
             }
         });
         $("#tableCallList").wijgrid();
-        $("#tableCallLocations").wijgrid();
     }
 </script>
