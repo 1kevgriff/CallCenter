@@ -20,10 +20,11 @@ namespace CallCenter.Web.Controllers
 		public ActionResult IncomingCall(string CallSid, string FromCity, string FromState, string FromZip, string FromCountry)
 		{
 			LocationalCall call = (LocationalCall) GetCall(CallSid);
-		    call.City = FromCity;
-		    call.Country = FromCountry;
-		    call.ZipCode = FromZip;
-		    call.State = FromState;
+		    StateManager.AddToLog(CallSid, "Incoming call...");
+			call.City = FromCity;
+			call.Country = FromCountry;
+			call.ZipCode = FromZip;
+			call.State = FromState;
 			StateManager.AddNewCall(call);
 
 			TwilioResponse response = new TwilioResponse();
@@ -50,6 +51,7 @@ namespace CallCenter.Web.Controllers
 		{
 			LocationalCall call = (LocationalCall) GetCall(CallSid);
 			StateManager.CompletedCall(call);
+		    StateManager.AddToLog(CallSid, "Call is completed.");
 
 			TwilioResponse response = new TwilioResponse();
 			response.Say("Goodbye baby cakes");
@@ -60,26 +62,56 @@ namespace CallCenter.Web.Controllers
 
 		private static LocationalCall GetCall(string CallSid)
 		{
-            string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
-            string authToken = "921a664399748302a019ee35c40e888c";
+			string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
+			string authToken = "921a664399748302a019ee35c40e888c";
 
 			TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
-		    var call = client.GetCall(CallSid);
-		    return new LocationalCall(call);
+			var call = client.GetCall(CallSid);
+			return new LocationalCall(call);
 		}
 
 		public ActionResult ServiceRequest(string CallSid, string Digits)
 		{
 			var call = GetCall(CallSid);
 			TwilioResponse response = new TwilioResponse();
-			response.Say(string.Format("You pressed {0}", Digits));
-			response.Pause();
-			response.Say("Way to go.");
-			response.Hangup();
 
-			Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
+            switch (Digits)
+			{
+				case "0":
+					{
+                        StateManager.AddToLog(CallSid, string.Format("User selected option {0} from service selection.", "Return to Menu"));
+						response.Say("Returning to the main menu.");
+						response.Redirect(Url.Action("IncomingCall"));
+					}
+					break;
+				case "1":
+					{
+                        StateManager.AddToLog(CallSid, string.Format("User selected option {0} from service selection.", "Manage Account"));
+						response.Say("Please enter your 8 digit account number");
+						response.Gather(
+							new { action = Url.Action("ManageAccount"), timeout = 120, method = "POST", numDigits = 8 });
+					}
+					break;
+				case "2":
+					{
+                        StateManager.AddToLog(CallSid, string.Format("User selected option {0} from service selection.", "Take a Loan"));
+						response.Say(
+							"All of our loan officers are currently giving money away to people less deserving than you.");
+					}
+					break;
+				case "3":
+					{
+                        StateManager.AddToLog(CallSid, string.Format("User selected option {0} from service selection.", "Talk to a Representative"));
+					}
+					break;
+			}
 
-			return new FileStreamResult(result, "text/plain");
+			return SendTwilioResult(response);
 		}
+
+	    public ActionResult ManageAccount()
+	    {
+	        throw new NotImplementedException();
+	    }
 	}
 }

@@ -23,6 +23,8 @@ namespace CallCenter.Web
                 return allCalls;
             }
         }
+
+        private static List<LogItem> Log { get; set; } 
         private static Timer updateUITimer;
 
         static StateManager()
@@ -47,7 +49,25 @@ namespace CallCenter.Web
             InactiveCalls.Add(locationalCall);
             BroadcastActiveCalls();
         }
-
+        public static void PreloadClient(string connectionId)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+            context.Clients[connectionId].updateActiveCallCount(ActiveCalls);
+            context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
+            context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
+            context.Clients[connectionId].updateLastUpdated(DateTime.Now.ToString());
+            BroadcastAreaCodes();
+        }
+        public static void AddToLog(string sid, string logText)
+        {
+            Log.Add(new LogItem()
+                        {
+                            PhoneNumber = CensorPhoneNumber(AllCalls.Find(p => p.Sid == sid).From),
+                            LogText = logText,
+                            Date = DateTime.Now
+                        });
+        }
+        
         private static void BroadcastActiveCalls()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
@@ -55,8 +75,11 @@ namespace CallCenter.Web
             context.Clients.updateInactiveCallCount(InactiveCalls);
             context.Clients.updateCallGrid(GetWijmoCallGrid());
             context.Clients.updateLastUpdated(DateTime.Now.ToString());
+            context.Clients.updateLogGrid(GetWijmoLogGrid());
             BroadcastAreaCodes();
         }
+
+
 
         private static void BroadcastAreaCodes()
         {
@@ -90,15 +113,6 @@ namespace CallCenter.Web
 
             context.Clients.updateAreaCodeChart(areaCodeList);
         }
-        public static void PreloadClient(string connectionId)
-        {
-            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
-            context.Clients[connectionId].updateActiveCallCount(ActiveCalls);
-            context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
-            context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
-            context.Clients[connectionId].updateLastUpdated(DateTime.Now.ToString());
-            BroadcastAreaCodes();
-        }
 
         /* Helpers */
         private static string ExtractAreaCode(string phoneNumber)
@@ -125,7 +139,16 @@ namespace CallCenter.Web
 
             return calls;
         }
-
+        private static List<Dictionary<string, string>> GetWijmoLogGrid()
+        {
+            var log = Log.OrderByDescending(p => p.Date).Select(l => new Dictionary<string, string>
+                                                                         {
+                                                                             {"Date", l.Date.ToString()},
+                                                                             {"Number", l.PhoneNumber},
+                                                                             {"Text", l.LogText}
+                                                                         }).ToList();
+            return log;
+        }
         private static string GetCallStatus(Call activeCall)
         {
             string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
@@ -148,6 +171,13 @@ namespace CallCenter.Web
         {
             return number.Substring(0, 8) + "****";
         }
+    }
+
+    internal class LogItem
+    {
+        public string PhoneNumber { get; set; }
+        public DateTime Date { get; set; }
+        public string LogText { get; set; }
     }
 
     public class WijPieChartSeriesItem
