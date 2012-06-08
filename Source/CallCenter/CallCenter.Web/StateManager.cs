@@ -25,17 +25,17 @@ namespace CallCenter.Web
         }
 
         private static List<LogItem> Log { get; set; }
-        private static Timer updateUITimer;
+        private static Timer updateCalls;
 
         static StateManager()
         {
             ActiveCalls = new List<LocationalCall>();
             InactiveCalls = new List<LocationalCall>();
             Log = new List<LogItem>();
-            updateUITimer = new Timer();
-            updateUITimer.Elapsed += (sender, args) => BroadcastActiveCalls();
-            updateUITimer.Interval = 1000; // 1 second
-            updateUITimer.Start();
+            updateCalls = new Timer();
+            updateCalls.Elapsed += (sender, args) => BroadcastActiveCalls();
+            updateCalls.Interval = 1000; // 1 second
+            updateCalls.Start();
         }
 
         public static void AddNewCall(LocationalCall call)
@@ -124,16 +124,6 @@ namespace CallCenter.Web
                 var a = callList.FirstOrDefault();
                 if (a == null)
                 {
-                    //callList.Add(new WijLineChartSeriesItem
-                    //{
-                    //    data = new Dictionary<string, object>{
-                    //        {"x", call.DateCreated.ToShortTimeString()},
-                    //        {"y", 1}
-                    //    },
-                    //    fitType = "spline",
-                    //    label = call.DateCreated.ToShortTimeString(),
-                    //    legendEntry = false
-                    //});
                     callList.Add(new WijLineChartSeriesItem()
                         {
                             label = "times",
