@@ -170,6 +170,8 @@ namespace CallCenter.Web
         }
         private static string CensorPhoneNumber(string number)
         {
+            if (String.IsNullOrWhiteSpace(number))
+                return "UNKNOWN";
             return number.Substring(0, 8) + "****";
         }
     }
