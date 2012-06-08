@@ -41,14 +41,15 @@ namespace CallCenter.Web
         public static void AddNewCall(LocationalCall call)
         {
             ActiveCalls.Add(call);
-            BroadcastActiveCalls();
         }
         public static void CompletedCall(LocationalCall call)
         {
             var locationalCall = ActiveCalls.Find(p => p.Sid == call.Sid);
+            if (locationalCall == null)
+                return;
+
             ActiveCalls.Remove(locationalCall);
             InactiveCalls.Add(locationalCall);
-            BroadcastActiveCalls();
         }
         public static void PreloadClient(string connectionId)
         {
