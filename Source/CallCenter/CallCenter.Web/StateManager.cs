@@ -57,7 +57,9 @@ namespace CallCenter.Web
             context.Clients[connectionId].updateInactiveCallCount(InactiveCalls);
             context.Clients[connectionId].updateCallGrid(GetWijmoCallGrid());
             context.Clients[connectionId].updateLastUpdated(DateTime.Now.ToString());
+            context.Clients[connectionId].updateLogGrid(GetWijmoLogGrid());
             BroadcastAreaCodes();
+            BroadcastCallsPerMinute();
         }
         public static void AddToLog(string sid, string logText)
         {
