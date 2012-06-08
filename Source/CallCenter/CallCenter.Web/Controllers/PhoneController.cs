@@ -20,12 +20,12 @@ namespace CallCenter.Web.Controllers
 		public ActionResult IncomingCall(string CallSid, string FromCity, string FromState, string FromZip, string FromCountry)
 		{
 			LocationalCall call = (LocationalCall) GetCall(CallSid);
+            StateManager.AddNewCall(call);
 		    StateManager.AddToLog(CallSid, "Incoming call...");
 			call.City = FromCity;
 			call.Country = FromCountry;
 			call.ZipCode = FromZip;
 			call.State = FromState;
-			StateManager.AddNewCall(call);
 
 			TwilioResponse response = new TwilioResponse();
 			response.Say("Welcome to the Bank of Griff.");
