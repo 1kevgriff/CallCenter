@@ -111,8 +111,24 @@
             width: 300,
             height: 300,
             showChartLabels: false,
+            axis: {
+                x: {
+                    autoMin: false,
+                    min: 0,
+                    autoMinor: false,
+                    autoMajor: false,
+                    tickMajor: {
+                        factor: 1
+                    }
+                }
+            },
             header: {
                 text: "Calls Per Minute"
+            },
+            hint: {
+                content: function () {
+                    return this.y;
+                }
             },
             seriesTransition: {
                 easing: 'bounce',
