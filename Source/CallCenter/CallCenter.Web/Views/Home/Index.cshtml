@@ -3,34 +3,29 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="row page-header">
-    <h1>
-        Bank of Griff - (202) 688-2265
+    <h1>Bank of Griff - (202) 688-2265
     </h1>
 </div>
 <div class="row">
     <div class="span2">
-        <h2>
-            ACTIVE</h2>
-        <h1 id="numberActiveCalls">
-            0</h1>
+        <h2>ACTIVE</h2>
+        <h1 id="numberActiveCalls">0</h1>
     </div>
     <div class="span2">
-        <h2>
-            TOTALS</h2>
-        <h1 id="numberInactiveCalls">
-            0</h1>
+        <h2>TOTALS</h2>
+        <h1 id="numberInactiveCalls">0</h1>
     </div>
     <div class="span4">
         <div id="areaCodeBarChart">
         </div>
     </div>
     <div class="span4">
+        <div id="callsPerMinuteChart"></div>
     </div>
 </div>
 <div class="row">
     <div class="span12">
-        <h2>
-            Phone Calls</h2>
+        <h2>Phone Calls</h2>
         <table id="tableCallList" width="100%">
             <thead>
             </thead>
@@ -43,7 +38,6 @@
     <div class="span12">
         <h2>Log</h2>
         <table id="tableLog" width="100%">
-            
         </table>
     </div>
 </div>
@@ -83,6 +77,10 @@
             $("#lastUpdated").text(date);
         };
 
+        dashboard.updateCallsPerMinute = function (data) {
+            $("#callsPerMinuteChart").wijlinechart("option", "seriesList", data);
+        };
+
         $.connection.hub.start().done(function () {
             dashboard.preload();
         });
@@ -97,7 +95,25 @@
             header: {
                 text: "Area Codes"
             },
-            seriesList: [{ data: 1, label: "None", legendEntry: false}],
+            hint: {
+                content: function () {
+                    return this.data.label + " : " + Globalize.format(this.value / this.total, "p2");
+                }
+            },
+            seriesList: [{ data: 1, label: "None", legendEntry: false }],
+            seriesTransition: {
+                easing: 'bounce',
+                duration: 1000,
+                enabled: false
+            }
+        });
+        $("#callsPerMinuteChart").wijlinechart({
+            width: 300,
+            height: 300,
+            showChartLabels: false,
+            header: {
+                text: "Calls Per Minute"
+            },
             seriesTransition: {
                 easing: 'bounce',
                 duration: 1000,

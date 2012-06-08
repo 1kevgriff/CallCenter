@@ -24,7 +24,7 @@ namespace CallCenter.Web
             }
         }
 
-        private static List<LogItem> Log { get; set; } 
+        private static List<LogItem> Log { get; set; }
         private static Timer updateUITimer;
 
         static StateManager()
@@ -35,7 +35,7 @@ namespace CallCenter.Web
             updateUITimer = new Timer();
             updateUITimer.Elapsed += (sender, args) => BroadcastActiveCalls();
             updateUITimer.Interval = 1000; // 1 second
-            updateUITimer.Start();
+            //updateUITimer.Start();
         }
 
         public static void AddNewCall(LocationalCall call)
@@ -68,7 +68,7 @@ namespace CallCenter.Web
                             Date = DateTime.Now
                         });
         }
-        
+
         private static void BroadcastActiveCalls()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
@@ -78,10 +78,8 @@ namespace CallCenter.Web
             context.Clients.updateLastUpdated(DateTime.Now.ToString());
             context.Clients.updateLogGrid(GetWijmoLogGrid());
             BroadcastAreaCodes();
+            BroadcastCallsPerMinute();
         }
-
-
-
         private static void BroadcastAreaCodes()
         {
             var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
@@ -113,6 +111,61 @@ namespace CallCenter.Web
             }
 
             context.Clients.updateAreaCodeChart(areaCodeList);
+        }
+        private static void BroadcastCallsPerMinute()
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext("DashboardHub");
+
+            var callsInPastFive = AllCalls.Where(p => (DateTime.Now - p.DateCreated).Minutes <= 5).OrderByDescending(p=>p.DateCreated);
+            List<WijLineChartSeriesItem> callList = new List<WijLineChartSeriesItem>();
+
+            foreach (var call in callsInPastFive)
+            {
+                var a = callList.FirstOrDefault();
+                if (a == null)
+                {
+                    //callList.Add(new WijLineChartSeriesItem
+                    //{
+                    //    data = new Dictionary<string, object>{
+                    //        {"x", call.DateCreated.ToShortTimeString()},
+                    //        {"y", 1}
+                    //    },
+                    //    fitType = "spline",
+                    //    label = call.DateCreated.ToShortTimeString(),
+                    //    legendEntry = false
+                    //});
+                    callList.Add(new WijLineChartSeriesItem()
+                        {
+                            label = "times",
+                            legendEntry = false,
+                            fitType = "spline",
+                            data = new xyObject() { x = new List<string>(), y = new List<int>()}
+                        });
+
+                    // get latest time
+                    DateTime maxTime = callsInPastFive.Max(p => p.DateCreated);
+                    for (DateTime current = maxTime; (maxTime - current).Minutes <= 5; current = current.AddMinutes(-1))
+                    {
+                        callList.FirstOrDefault().data.x.Add(current.ToShortTimeString());
+                        callList.FirstOrDefault().data.y.Add(0);
+                    }
+                }
+
+                a = callList.FirstOrDefault();
+                if (a.data.x.Contains(call.DateCreated.ToShortTimeString()))
+                {
+                    int index = a.data.x.IndexOf(call.DateCreated.ToShortTimeString());
+                    a.data.x[index] = call.DateCreated.ToShortTimeString();
+                    a.data.y[index]++;
+                }
+                else
+                {
+                    a.data.x.Add(call.DateCreated.ToShortTimeString());
+                    a.data.y.Add(1);
+                }
+            }
+
+            context.Clients.updateCallsPerMinute(callList.OrderBy(p => p.data.x));
         }
 
         /* Helpers */
@@ -188,5 +241,19 @@ namespace CallCenter.Web
         public string label { get; set; }
         public bool legendEntry { get; set; }
         public int data { get; set; }
+    }
+
+    public class WijLineChartSeriesItem
+    {
+        public string label { get; set; }
+        public bool legendEntry { get; set; }
+        public string fitType { get; set; }
+        public xyObject data { get; set; }
+    }
+
+    public class xyObject
+    {
+        public List<string> x { get; set; }
+        public List<int> y { get; set; }
     }
 }

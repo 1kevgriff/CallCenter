@@ -104,6 +104,11 @@ namespace CallCenter.Web.Controllers
                         StateManager.AddToLog(CallSid, string.Format("User selected option {0} from service selection.", "Talk to a Representative"));
 					}
 					break;
+                default:
+                    {
+                        response.Say("Oy vey.");
+                        response.Redirect(Url.Action("IncomingCall"));
+                    } break;
 			}
 
 			return SendTwilioResult(response);
