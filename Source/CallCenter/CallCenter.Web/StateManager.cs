@@ -31,6 +31,7 @@ namespace CallCenter.Web
         {
             ActiveCalls = new List<LocationalCall>();
             InactiveCalls = new List<LocationalCall>();
+            Log = new List<LogItem>();
             updateUITimer = new Timer();
             updateUITimer.Elapsed += (sender, args) => BroadcastActiveCalls();
             updateUITimer.Interval = 1000; // 1 second
