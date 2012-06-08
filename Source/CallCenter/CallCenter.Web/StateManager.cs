@@ -175,7 +175,9 @@ namespace CallCenter.Web
         }
         private static List<Dictionary<string, string>> GetWijmoCallGrid()
         {
-            var calls = AllCalls.OrderByDescending(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
+            if (AllCalls.Any())
+            {
+                var calls = AllCalls.OrderByDescending(p => p.DateCreated).Select(activeCall => new Dictionary<string, string>
                                                              {
                                                                  {"Number", CensorPhoneNumber(activeCall.From)},
                                                                  {"Status", GetCallStatus(activeCall)},
@@ -189,9 +191,14 @@ namespace CallCenter.Web
                                                                  {"State", activeCall.State},
                                                                  {"Zip Code", activeCall.ZipCode},
                                                                  {"Country", activeCall.Country}
-                                                             }).ToList();
+                                                             });
 
-            return calls;
+                return calls.ToList();
+            }
+            else
+            {
+                return new List<Dictionary<string, string>>();
+            }
         }
         private static List<Dictionary<string, string>> GetWijmoLogGrid()
         {
