@@ -139,7 +139,7 @@ namespace CallCenter.Web
                         });
 
                     // get latest time
-                    DateTime maxTime = DateTime.Now;
+                    DateTime maxTime = DateTime.UtcNow;
                     for (DateTime current = maxTime; (maxTime - current).Minutes <= 5; current = current.AddMinutes(-1))
                     {
                         callList.FirstOrDefault().data.x.Add(current.ToShortTimeString());
