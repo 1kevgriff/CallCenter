@@ -9,7 +9,7 @@ using Twilio;
 
 namespace CallCenter.Web
 {
-    public class StateManager
+    public static class StateManager
     {
         private static List<LocationalCall> ActiveCalls { get; set; }
         private static List<LocationalCall> InactiveCalls { get; set; }
@@ -64,6 +64,9 @@ namespace CallCenter.Web
         }
         public static void AddToLog(string sid, string logText)
         {
+            if (Log == null)
+                Log = new List<LogItem>();
+
             Log.Add(new LogItem()
                         {
                             PhoneNumber = CensorPhoneNumber(AllCalls.Find(p => p.Sid == sid).From),
@@ -136,7 +139,7 @@ namespace CallCenter.Web
                         });
 
                     // get latest time
-                    DateTime maxTime = callsInPastFive.Max(p => p.DateCreated);
+                    DateTime maxTime = DateTime.Now;
                     for (DateTime current = maxTime; (maxTime - current).Minutes <= 5; current = current.AddMinutes(-1))
                     {
                         callList.FirstOrDefault().data.x.Add(current.ToShortTimeString());

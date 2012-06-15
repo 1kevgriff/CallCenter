@@ -39,14 +39,6 @@ namespace CallCenter.Web.Controllers
 
 			return SendTwilioResult(response);
 		}
-
-		private static ActionResult SendTwilioResult(TwilioResponse response)
-		{
-			Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
-
-			return new FileStreamResult(result, "application/xml");
-		}
-
 		public ActionResult CallComplete(string CallSid)
 		{
 			LocationalCall call = (LocationalCall) GetCall(CallSid);
@@ -59,17 +51,6 @@ namespace CallCenter.Web.Controllers
 
 			return SendTwilioResult(response);
 		}
-
-		private static LocationalCall GetCall(string CallSid)
-		{
-			string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
-			string authToken = "921a664399748302a019ee35c40e888c";
-
-			TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
-			var call = client.GetCall(CallSid);
-			return new LocationalCall(call);
-		}
-
 		public ActionResult ServiceRequest(string CallSid, string Digits)
 		{
 			var call = GetCall(CallSid);
@@ -113,7 +94,6 @@ namespace CallCenter.Web.Controllers
 
 			return SendTwilioResult(response);
 		}
-
         public ActionResult ManageAccount(string CallSid, string Digits)
 	    {
             var call = GetCall(CallSid);
@@ -123,5 +103,21 @@ namespace CallCenter.Web.Controllers
 
             return SendTwilioResult(response);
 	    }
+
+        private static ActionResult SendTwilioResult(TwilioResponse response)
+        {
+            Stream result = new MemoryStream(Encoding.Default.GetBytes(response.ToString()));
+
+            return new FileStreamResult(result, "application/xml");
+        }
+        private static LocationalCall GetCall(string CallSid)
+        {
+            string accountSid = "ACa2de2b9a03db42ee981073b917cc8132";
+            string authToken = "921a664399748302a019ee35c40e888c";
+
+            TwilioRestClient client = new TwilioRestClient(accountSid, authToken);
+            var call = client.GetCall(CallSid);
+            return new LocationalCall(call);
+        }
 	}
 }
