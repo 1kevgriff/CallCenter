@@ -9,11 +9,11 @@
 <div class="row">
     <div class="span2">
         <h2>ACTIVE</h2>
-        <h1 id="numberActiveCalls">0</h1>
+        <h1 id="numberActiveCalls" data-bind="text: numberActiveCalls"></h1>
     </div>
     <div class="span2">
         <h2>TOTALS</h2>
-        <h1 id="numberInactiveCalls">0</h1>
+        <h1 id="numberInactiveCalls" data-bind="text: numberInactiveCalls"></h1>
     </div>
     <div class="span4">
         <div id="areaCodeBarChart">
@@ -43,22 +43,37 @@
 </div>
 <div class="row">
     <div class="span12">
-        <small>Last updated at <span id="lastUpdated">Unknown</span></small>
+        <small>Last updated at <span id="lastUpdated" data-bind="text: lastUpdated">Unknown</span></small>
     </div>
 </div>
 <script type="text/javascript" src="SignalR/Hubs"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        var CallCenterModel = function () {
+            var numberActiveCalls, numberInactiveCalls, lastUpdated;
+            numberActiveCalls = ko.observable(0);
+            numberInactiveCalls = ko.observable(0);
+            lastUpdated = ko.observable('Unknown');
+            return {
+                numberActiveCalls: numberActiveCalls,
+                numberInactiveCalls: numberInactiveCalls,
+                lastUpdated: lastUpdated
+            };
+        };
+        var model = new CallCenterModel();
+
+        ko.applyBindings(model);
+        
         configureWijmo();
 
         var dashboard = $.connection.dashboardHub;
 
         dashboard.updateActiveCallCount = function (callList) {
-            $("#numberActiveCalls").text(callList.length);
+            model.numberActiveCalls(callList.length);
         };
 
         dashboard.updateInactiveCallCount = function (callList) {
-            $("#numberInactiveCalls").text(callList.length);
+            model.numberInactiveCalls(callList.length);
         };
 
         dashboard.updateAreaCodeChart = function (areaCodeList) {
@@ -74,7 +89,7 @@
         };
 
         dashboard.updateLastUpdated = function (date) {
-            $("#lastUpdated").text(date);
+            model.lastUpdated(date);
         };
 
         dashboard.updateCallsPerMinute = function (data) {
