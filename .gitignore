@@ -155,6 +155,9 @@ pip-log.txt
 .coverage
 .tox
 
+#NCrunch
+*.ncrunchsolution
+
 #Translations
 *.mo
 
